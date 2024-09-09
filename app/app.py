@@ -1,6 +1,6 @@
 import currency_converter
 from PySide2 import QtWidgets
-from currency_converter import CurrencyConverter
+
 
 
 class App(QtWidgets.QWidget):
@@ -11,6 +11,9 @@ class App(QtWidgets.QWidget):
         self.setup_ui()
         self.setup_connections()
         self.set_default_values()
+        self.setup_css()
+        self.resize(500, 50)
+
 
     def setup_ui(self):
         self.layout = QtWidgets.QHBoxLayout(self)
@@ -39,15 +42,40 @@ class App(QtWidgets.QWidget):
         self.spn_montantConverti.setValue(100)
 
     def setup_connections(self):
-        pass
+        self.cbb_devisesFrom.activated.connect(self.compute)
+        self.cbb_devisesTo.activated.connect(self.compute)
+        self.spn_montant.valueChanged.connect(self.compute)
+        self.btn_inverser.clicked.connect(self.reverse_devise)
+
+    def setup_css(self):
+        self.setStyleSheet("""
+        background-color: rgb(30, 30, 30);
+        color: rgb(240, 240, 240);
+        border: none;
+        """)
+
 
     # Modifier la devise
-    def computer(self):
-        pass
+    def compute(self):
+        montant = self.spn_montant.value()
+        devise_from = self.cbb_devisesFrom.currentText()
+        devise_to = self.cbb_devisesTo.currentText()
+        try:
+            resultat = self.c.convert(montant,devise_from, devise_to)
+        except currency_converter.currency_converter.RateNotFoundError:
+            print("La conversion n'a pas fonctionné.")
+        else:
+            self.spn_montantConverti.setValue(resultat)
 
     # Inverser la devise
     def reverse_devise(self):
-        pass
+        devise_from = self.cbb_devisesFrom.currentText()
+        devise_to = self.cbb_devisesTo.currentText()
+
+        self.cbb_devisesFrom.setCurrentText(devise_to)
+        self.cbb_devisesTo.setCurrentText(devise_from)
+
+        self.compute()
 
 
 
